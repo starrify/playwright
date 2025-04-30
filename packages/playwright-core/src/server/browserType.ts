@@ -85,7 +85,7 @@ export abstract class BrowserType extends SdkObject {
 
   async launch(metadata: CallMetadata, options: types.LaunchOptions, protocolLogger?: types.ProtocolLogger): Promise<Browser> {
     options = this._validateLaunchOptions(options);
-    if (this._useBidi)
+    if (this._useBidi || true)
       options.useWebSocket = true;
     const controller = new ProgressController(metadata, this);
     controller.setLogName('browser');
@@ -277,6 +277,7 @@ export abstract class BrowserType extends SdkObject {
     progress.cleanupWhenAborted(() => closeOrKill(progress.timeUntilDeadline()));
     const wsEndpoint = (await readyState?.waitUntilReady())?.wsEndpoint;
     if (options.useWebSocket) {
+      process.env.PLAYWRIGHT_CDP_WS_ENDPOINT = wsEndpoint;
       transport = await WebSocketTransport.connect(progress, wsEndpoint!);
     } else {
       const stdio = launchedProcess.stdio as unknown as [NodeJS.ReadableStream, NodeJS.WritableStream, NodeJS.WritableStream, NodeJS.WritableStream, NodeJS.ReadableStream];
